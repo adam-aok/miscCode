@@ -27,14 +27,3 @@ For Each Cell In rng1
 Next
 
 End Function
-
-Function splitGetLast(text As String, splitVal As String) As String
-Dim textArr() As String
-
-If text <> "" Then
-textArr = Split(Trim(text), splitVal)
-splitGetLast = textArr(UBound(textArr))
-End If
-
-End Function
-
