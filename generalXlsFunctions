@@ -1,0 +1,2 @@
+'checking how many occurrences of a character there are in a cell
+=LEN(A1)-LEN(SUBSTITUTE(UPPER(A1),"A",""))
