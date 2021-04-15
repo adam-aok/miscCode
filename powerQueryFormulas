@@ -1,0 +1,12 @@
+
+'Find offending text in a formula. In this case, we want to completely strip a string to everything that is not a number, a space, or a unit of area.
+Text.Combine(
+List.RemoveItems(
+Text.ToList(
+Text.Combine(
+List.RemoveItems(Text.Split(Text.Replace([scopeField]," ",";"),";"),{"sf","sm","acres","hectares"}
+)
+)
+),{";",",","0","1","2","3","4","5","6","7","8","9"}
+)
+)),
