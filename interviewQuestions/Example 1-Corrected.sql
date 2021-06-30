@@ -1,22 +1,35 @@
+--selecting basic components from various tables
 SELECT ppl.people_id,
        ppl.medicaid_number,
+
        jev.INVOICE_NUMBER AS BATCH,
        jev.GL_CODE,
+
        B2.GL_CODE AS REV_GL,
        B2.ACCOUNT_DESCRIPTION,
        B2.GL_CODE2 AS REV_GL2,
        B2.ACCOUNT_DESCRIPTION2,
+
        jev.JE_NUM_SHORT,
        jev.LINE_NUMBER,
+
        B2.COST_CENTER,
+
        ppl.agency_id_no AS EVOLV_ID,
-       LTRIM(RTRIM(CONCAT(ppl.last_name, ', ', ppl.first_name, ' ', ppl.middle_name))) AS CHILD,
+       
+       --SQL 2017 onwards, best to just use TRIM
+       --LTRIM(RTRIM(CONCAT(ppl.last_name, ', ', ppl.first_name, ' ', ppl.middle_name))) AS CHILD,
+       TRIM(CONCAT(ppl.last_name, ', ', ppl.first_name, ' ', ppl.middle_name)) AS CHILD,
+
        B2.DEP,
        B2.PROGRAM,
+       
        jev.MONTH_ORDER AS GL_MONTH,
        jev.YEAR AS GL_YEAR,
+       
        MONTH(jev.INVOICE_from_date) AS SERV_MONTH,
        YEAR(jev.INVOICE_from_date) AS SERV_YEAR,
+
        CASE
            WHEN jev.DEBIT_AMOUNT IS NULL
                 AND jev.CREDIT_AMOUNT IS NOT NULL THEN
@@ -30,7 +43,9 @@ SELECT ppl.people_id,
            ELSE
                jev.DEBIT_AMOUNT - jev.CREDIT_AMOUNT
        END AS GL_AMOUNT,
+
        CAST(jev.INVOICE_from_date AS DATE) AS EVOLV_SERVICE_DATE,
+
        cv.procedure_code AS PROC_CODE,
        inv.UNITS,
        YEAR(DATEADD(MONTH, 6, jev.INVOICE_from_date)) AS FY,
@@ -47,10 +62,14 @@ FROM CQI.dbo.journal_entries_view jev
     LEFT OUTER JOIN [MYEVOLVNYFRPT.NETSMARTCLOUD.COM].[evolv_cs].[dbo].people ppl
         ON jev.people_id = ppl.people_id
     LEFT OUTER JOIN
-    ( - why NOT ON invoice_id
+
+    --syntax issues here: meant to be commented? i've added an additional dash to improve this
+    ( -- why NOT invoice_id
+        --improper to just select invoice_id here, because we want the join data associated with this temporary table v
         SELECT *
         FROM
         (
+            --so basically, you're getting the top of each of these and selecting those tops in the next step of the join
             SELECT ROW_NUMBER() OVER (PARTITION BY PV.vendor_name,
                                                    inv.invoice_number,
                                                    inv.units
@@ -70,6 +89,7 @@ FROM CQI.dbo.journal_entries_view jev
         ON cv.invoice_number = v.invoice_number
     LEFT OUTER JOIN
     --  SINCE THE AR ACCOUNT DOES NOT HAVE THE DEP OR PROGRAM (COST CENTER) INFO, I NEED TO JOIN THAT INFO ON BATCH ID (INVOICE#) TO GET THE AR
+
     (
         SELECT ROW_NUMBER() OVER (PARTITION BY a.INVOICE_NUMBER,
                                                c.agency_id_no
@@ -100,6 +120,7 @@ FROM CQI.dbo.journal_entries_view jev
     ) B2
         ON jev.INVOICE_NUMBER = B2.BATCH
            AND ppl.agency_id_no = B2.EVOLV_ID
+           
 WHERE CAST(jev.INVOICE_from_date AS DATE) >= '01/01/2016'
       AND jev.gl_code IN ( '1527', '1993' )
       AND
@@ -156,6 +177,7 @@ FROM CQI.dbo.journal_entries_view a
     LEFT OUTER JOIN [MYEVOLVNYFRPT.NETSMARTCLOUD.COM].[evolv_cs].[dbo].people c
         ON a.people_id = c.people_id
     LEFT OUTER JOIN
+    --same circumstance here regarding the asterisk
     (
         SELECT *
         FROM
