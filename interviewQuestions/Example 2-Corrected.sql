@@ -14,6 +14,7 @@ AS
 
 DECLARE @StartDate DATE = DATEFROMPARTS(YEAR(DATEADD(MM, -12, GETDATE())), MONTH(DATEADD(MM, -12, GETDATE())), 1);
 
+--NullDate is used to move all null dates to the bottom we can assume
 DECLARE @NullDate DATE = CAST('1/1/2099' AS DATE);
 
 --#################################################################################################################################
@@ -684,5 +685,3 @@ BEGIN
 END
 ;
 GO
-
-
