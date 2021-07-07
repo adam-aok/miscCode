@@ -120,7 +120,7 @@ FROM CQI.dbo.journal_entries_view jev
     ) B2
         ON jev.INVOICE_NUMBER = B2.BATCH
            AND ppl.agency_id_no = B2.EVOLV_ID
-           
+
 WHERE CAST(jev.INVOICE_from_date AS DATE) >= '01/01/2016'
       AND jev.gl_code IN ( '1527', '1993' )
       AND
@@ -199,5 +199,6 @@ FROM CQI.dbo.journal_entries_view a
         WHERE v1.RN = 1
     ) v
         ON b.invoice_number = v.invoice_number
+        --invoices after 1/1/2016
 WHERE CAST(a.INVOICE_from_date AS DATE) >= '01/01/2016'
       AND a.GL_CODE IN ( '5070', '5080', '5040', '5010', '5050', '5150', '5100' );
